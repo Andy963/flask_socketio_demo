@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>
+        flask socketio demo
+    </title>
+    <script src="https://cdn.bootcss.com/jquery/3.2.0/jquery.js">
+    </script>
+    <script crossorigin="anonymous" integrity="sha256-yr4fRk/GU1ehYJPAs8P4JlTgu0Hdsp4ZKrx8bDEDC3I="
+            src="//cdnjs.cloudflare.com/ajax/libs/socket.io/2.2.0/socket.io.js">
+    </script>
+    <script src="https://code.jquery.com/jquery-3.5.1.min.js"
+            integrity="sha256-9/aliU8dGd2tb6OSsuzixeV4y/faTqgFtohetphbbj0="
+            crossorigin="anonymous"></script>
+    </meta>
+</head>
+<body>
+<h3>
+    <h3>flask socketio demo</h3>
+    <div>
+        <label for="time">当前时间</label>
+        <input id="time" disabled>
+    </div>
+
+    <form action="#">
+        <label>发送信息</label>
+        <input name="message" id="send">
+        <button id="submit">提交</button>
+    </form>
+    <form action="#">
+        <label>收到消息</label>
+        <input name="res_msg" id="res">
+    </form>
+</h3>
+<script>
+    // 初始化连接
+    var socket = io.connect('http://127.0.0.1:5000/test');
+
+    socket.on('connect', function () {
+        // 连接事件
+    });
+
+    $("#submit").click(function (event) {
+        // 将要发送的消息发送给my event事件
+        event.preventDefault();
+        socket.emit('my event', {data: $("#send").val()})
+    });
+
+    socket.on('my event', function (message) {
+        // 将接收到的消息写入到接收消息的框中
+        var data = message.data;
+        $("#res").val(data);
+
+        //同时触发了timer事件，但消息为空，目的是让服务端返回时间，这个事件一直在继续，达到同步时间显示
+        socket.emit('timer', {data: ''})
+    });
+
+    socket.on('timer', function (message) {
+        // 服务端发送回来的时间字符串在网页上显示出来，同时又发送空消息继续触发服务端的timer事件
+        $("#time").val(message.data);
+        socket.emit('timer', {data: ''})
+    })
+
+</script>
+</body>
+</html>
